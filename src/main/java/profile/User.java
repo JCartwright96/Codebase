@@ -5,13 +5,9 @@
  */
 package profile;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
-
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -32,11 +28,6 @@ public class User {
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         formatAge();
-    }
-
-    public static void main(String[] args) {
-        User u1 = new User("joe", "cartwright", LocalDate.of(1996,10,23));
-        System.out.println(u1.toString());
     }
 
     /**
@@ -96,12 +87,13 @@ public class User {
      */
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+        formatAge();
     }
 
     /**
      * formats the date of birth of a user and calculates the age in years.
      */
-    public void formatAge() {
+    private void formatAge() {
         formattedDateOfBirth = dateOfBirth.format(DateTimeFormatter.ofPattern("dd/MM/yy"));
         age = Period.between(dateOfBirth, LocalDate.now()).getYears();
     }
