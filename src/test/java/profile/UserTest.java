@@ -1,6 +1,6 @@
 /*
  * Name     :   UserTest.java
- * Author$  :   joeca
+ * Author   :   joeca
  * Date     :   08 Mar 2021
  */
 package profile;
