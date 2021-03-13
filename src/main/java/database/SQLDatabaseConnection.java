@@ -26,4 +26,8 @@ public class SQLDatabaseConnection {
 
     }
 
+    public static void main(String[] args) {
+        SQLDatabaseConnection.queryDatabase("SELECT * FROM user_table");
+    }
+
 }
