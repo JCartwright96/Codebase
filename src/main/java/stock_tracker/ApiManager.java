@@ -53,28 +53,6 @@ public class ApiManager {
      * @return a string of the stock values for the chosen symbol or an empty string if none  found
      * @throws IOException if the StreamReader fails on the input stream
      */
-//    public String get(String symbol) throws IOException {
-//        this.symbol = symbol;
-//        StringBuffer content = new StringBuffer();
-//        if(validateUrlParameters()) {
-//            buildUrl();
-//
-//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-//            urlConnection.setRequestProperty("Content-Type", "application/json");
-//            urlConnection.setConnectTimeout(5000);
-//            urlConnection.setRequestMethod("GET");
-//
-//            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-//            String inputLine;
-//            while ((inputLine = in.readLine()) != null) {
-//                content.append("\n").append(inputLine);
-//            }
-//            in.close();
-//
-//            urlConnection.disconnect();
-//        }
-//        return content.toString();
-//    }
     public ArrayList<Map<String, String>> get(String symbol) throws IOException {
         this.symbol = symbol;
         ArrayList<Map<String, String>> stockListings = new ArrayList<>();
