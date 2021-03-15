@@ -81,6 +81,12 @@ public class ApiManager {
         return stockListings;
     }
 
+    /**
+     * Returns the api response as a single string for reading/debugging purposes
+     * @param symbol the ticker symbol for the stock to get
+     * @return a string of the all the stock information
+     * @throws IOException if the call fails
+     */
     public String getStringDebug(String symbol) throws IOException {
         this.symbol = symbol;
         StringBuilder content = new StringBuilder();
