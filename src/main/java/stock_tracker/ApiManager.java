@@ -76,6 +76,13 @@ public class ApiManager {
         return stockListings;
     }
 
+    /**
+     * Formats the singular string response into an ArrayList of Map<String, String> when the api FunctionType is GLOBAL_QUOTE
+     * The ArrayList will always have a size of 1 but follows the same return typing as formatting for other FunctionTypes
+     * @param in the BufferedReader reading through each line of the response
+     * @return a list of Map<String, String> for each time period tracked for the stock
+     * @throws IOException if the reader fails
+     */
     public ArrayList<Map<String, String>> formatStockGlobalQuote(BufferedReader in) throws IOException {
         ArrayList<Map<String, String>> stockList = new ArrayList<>();
         Map<String, String> content = new HashMap<>();
@@ -104,10 +111,19 @@ public class ApiManager {
         return stockList;
     }
 
+    /**
+     * Formats the singular string read from the Api call stream into an ArrayList of Map<String, String>.
+     * Each Map<String, String> contains information about the stock during a specific time frame
+     * @param in the BufferedReader reading through each line of the response from the Api Call
+     * @return a list of Map<String, String> for each time period tracked for the stock
+     * @throws IOException if the reader fails
+     */
     public ArrayList<Map<String, String>> formatStockMultipleDays(BufferedReader in) throws IOException {
-        String inputLine;
         ArrayList<Map<String, String>> listOfStock = new ArrayList<>();
         Map<String, String> content = new HashMap<>();
+        String inputLine;
+        // A count is used to skip the first several lines of the response as this is unneeded meta data
+        // A different numbers of lines is skipped depending on the FunctionType used
         int count = 0;
         if (function == FunctionType.TIME_SERIES_MONTHLY) {
             count += 2;
@@ -119,7 +135,7 @@ public class ApiManager {
             if (count > 8) {
                 if (!content.containsKey("open") || !content.containsKey("high") || !content.containsKey("low") || !content.containsKey("price") || !content.containsKey("dayTraded")) {
                     if (inputLine.contains("-")) {
-                        String dayTraded = inputLine.replaceAll("\\s","").substring(1, inputLine.replaceAll("\\s","").length()-3);
+                        String dayTraded = inputLine.replaceAll("\\s", "").substring(1, inputLine.replaceAll("\\s", "").length() - 3);
                         content.put("dayTraded", dayTraded.substring(0, 10) + " " + dayTraded.substring(10));
                     }
                     if (inputLine.contains("open")) {
@@ -145,6 +161,11 @@ public class ApiManager {
         return listOfStock;
     }
 
+    /**
+     * Returns the value from a JSONString key value pair returned as part of the api response
+     * @param inputLine the current line being read from the inputStream
+     * @return the value required from the current line
+     */
     public String getValue(String inputLine) {
         return inputLine.substring(inputLine.indexOf(":") + 3, inputLine.length() - 2);
     }
@@ -209,10 +230,6 @@ public class ApiManager {
         convertTimeInterval();
     }
 
-    public URL getUrl() {
-        return url;
-    }
-
     /**
      * Converts the current time interval into a string variant accepted by the api
      */
@@ -234,13 +251,4 @@ public class ApiManager {
                 stringInterval = "5min";
         }
     }
-
-    public static void main(String[] args) throws IOException {
-        ApiManager api = new ApiManager(FunctionType.TIME_SERIES_INTRADAY, TimeInterval.FIVE_MIN);
-        for (Map<String, String> stock: api.get("GME")) {
-            System.out.println(stock.toString());
-        }
-        ApiManager apiCustom = new ApiManager(FunctionType.TIME_SERIES_DAILY);
-    }
-
 }
