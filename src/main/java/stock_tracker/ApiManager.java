@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.Buffer;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +34,13 @@ public class ApiManager {
     public ApiManager(FunctionType function, TimeInterval... interval) {
         this.function = function;
         if (function == FunctionType.TIME_SERIES_INTRADAY) {
-            setInterval(interval[0]);
+            if(interval.length > 0) {
+                setInterval(interval[0]);
+            }
+            else
+            {
+                setInterval(TimeInterval.FIVE_MIN);
+            }
         }
     }
 
@@ -76,12 +81,34 @@ public class ApiManager {
         return stockListings;
     }
 
+    public String getStringDebug(String symbol) throws IOException {
+        this.symbol = symbol;
+        StringBuilder content = new StringBuilder();
+        ArrayList<Map<String, String>> stockListings = new ArrayList<>();
+        if (validateUrlParameters()) {
+            buildUrl();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setConnectTimeout(5000);
+            urlConnection.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String inputLine;
+            while((inputLine = in.readLine()) != null) {
+                content.append("\n").append(inputLine);
+            }
+            in.close();
+            urlConnection.disconnect();
+        }
+        return content.toString();
+    }
+
     /**
      * Formats the singular string response into an ArrayList of Map<String, String> when the api FunctionType is GLOBAL_QUOTE
      * The ArrayList will always have a size of 1 but follows the same return typing as formatting for other FunctionTypes
      * @param in the BufferedReader reading through each line of the response
-     * @return a list of Map<String, String> for each time period tracked for the stock
-     * @throws IOException if the reader fails
+     * @return an a list of the stock information
+     * @throws IOException if th reader fails
      */
     public ArrayList<Map<String, String>> formatStockGlobalQuote(BufferedReader in) throws IOException {
         ArrayList<Map<String, String>> stockList = new ArrayList<>();
@@ -250,5 +277,10 @@ public class ApiManager {
             default:
                 stringInterval = "5min";
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        ApiManager api = new ApiManager(FunctionType.TIME_SERIES_INTRADAY);
+        System.out.println(api.getStringDebug("GME"));
     }
 }
