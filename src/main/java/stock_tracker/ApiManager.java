@@ -11,6 +11,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.Buffer;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ApiManager {
 
@@ -29,7 +34,7 @@ public class ApiManager {
      */
     public ApiManager(FunctionType function, TimeInterval... interval) {
         this.function = function;
-        if(function  == FunctionType.TIME_SERIES_INTRADAY) {
+        if (function == FunctionType.TIME_SERIES_INTRADAY) {
             setInterval(interval[0]);
         }
     }
@@ -48,27 +53,122 @@ public class ApiManager {
      * @return a string of the stock values for the chosen symbol or an empty string if none  found
      * @throws IOException if the StreamReader fails on the input stream
      */
-    public String get(String symbol) throws IOException {
+//    public String get(String symbol) throws IOException {
+//        this.symbol = symbol;
+//        StringBuffer content = new StringBuffer();
+//        if(validateUrlParameters()) {
+//            buildUrl();
+//
+//            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+//            urlConnection.setRequestProperty("Content-Type", "application/json");
+//            urlConnection.setConnectTimeout(5000);
+//            urlConnection.setRequestMethod("GET");
+//
+//            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+//            String inputLine;
+//            while ((inputLine = in.readLine()) != null) {
+//                content.append("\n").append(inputLine);
+//            }
+//            in.close();
+//
+//            urlConnection.disconnect();
+//        }
+//        return content.toString();
+//    }
+    public ArrayList<Map<String, String>> get(String symbol) throws IOException {
         this.symbol = symbol;
-        StringBuffer content = new StringBuffer();
-        if(validateUrlParameters()) {
+        ArrayList<Map<String, String>> stockListings = new ArrayList<>();
+        if (validateUrlParameters()) {
             buildUrl();
-
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.setConnectTimeout(5000);
             urlConnection.setRequestMethod("GET");
 
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                content.append("\n").append(inputLine);
+
+            if (function == FunctionType.GLOBAL_QUOTE) {
+                stockListings = formatStockGlobalQuote(in);
+            } else {
+                stockListings = formatStockMultipleDays(in);
             }
             in.close();
-
             urlConnection.disconnect();
         }
-        return content.toString();
+        return stockListings;
+    }
+
+    public ArrayList<Map<String, String>> formatStockGlobalQuote(BufferedReader in) throws IOException {
+        ArrayList<Map<String, String>> stockList = new ArrayList<>();
+        Map<String, String> content = new HashMap<>();
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+            if (inputLine.contains("open")) {
+                content.put("open", getValue(inputLine));
+            }
+            if (inputLine.contains("high")) {
+                content.put("high", getValue(inputLine));
+            }
+            if (inputLine.contains("low")) {
+                content.put("low", getValue(inputLine));
+            }
+            if (inputLine.contains("close")) {
+                content.put("price", getValue(inputLine));
+            }
+            if (inputLine.contains("change percent")) {
+                content.put("changePercent", getValue(inputLine));
+            }
+            if (!content.containsKey("dayTraded")) {
+                content.put("dayTraded", LocalDate.now().toString());
+            }
+        }
+        stockList.add(content);
+        return stockList;
+    }
+
+    public ArrayList<Map<String, String>> formatStockMultipleDays(BufferedReader in) throws IOException {
+        String inputLine;
+        ArrayList<Map<String, String>> listOfStock = new ArrayList<>();
+        Map<String, String> content = new HashMap<>();
+        int count = 0;
+        if (function == FunctionType.TIME_SERIES_MONTHLY) {
+            count += 2;
+        }
+        if (function == FunctionType.TIME_SERIES_DAILY) {
+            count++;
+        }
+        while ((inputLine = in.readLine()) != null) {
+            if (count > 8) {
+                if (!content.containsKey("open") || !content.containsKey("high") || !content.containsKey("low") || !content.containsKey("price") || !content.containsKey("dayTraded")) {
+                    if (inputLine.contains("-")) {
+                        String dayTraded = inputLine.replaceAll("\\s","").substring(1, inputLine.replaceAll("\\s","").length()-3);
+                        content.put("dayTraded", dayTraded.substring(0, 10) + " " + dayTraded.substring(10));
+                    }
+                    if (inputLine.contains("open")) {
+                        content.put("open", getValue(inputLine));
+                    }
+                    if (inputLine.contains("high")) {
+                        content.put("high", getValue(inputLine));
+                    }
+                    if (inputLine.contains("low")) {
+                        content.put("low", getValue(inputLine));
+                    }
+                    if (inputLine.contains("close")) {
+                        content.put("price", getValue(inputLine));
+                    }
+                } else {
+                    listOfStock.add(content);
+                    content = new HashMap<>();
+                }
+            } else {
+                count++;
+            }
+        }
+        return listOfStock;
+    }
+
+    public String getValue(String inputLine) {
+        return inputLine.substring(inputLine.indexOf(":") + 3, inputLine.length() - 2);
     }
 
     /**
@@ -76,13 +176,13 @@ public class ApiManager {
      * @return true if all values are valid or false if not
      */
     public boolean validateUrlParameters() {
-        if(function == null) {
+        if (function == null) {
             return false;
         }
-        if(symbol.equals("")) {
+        if (symbol.equals("")) {
             return false;
         }
-        if(function == FunctionType.TIME_SERIES_INTRADAY && interval == null) {
+        if (function == FunctionType.TIME_SERIES_INTRADAY && interval == null) {
             setInterval(TimeInterval.FIVE_MIN);
         }
         return true;
@@ -93,10 +193,9 @@ public class ApiManager {
      * @throws MalformedURLException if the builtUrl is of the wrong style/form
      */
     public void buildUrl() throws MalformedURLException {
-        if(interval != null) {
+        if (interval != null) {
             url = new URL(BASE_URL + "function=" + function.toString() + "&symbol=" + symbol + "&interval=" + stringInterval + "&apikey=" + API_KEY);
-        }
-        else {
+        } else {
             url = new URL(BASE_URL + "function=" + function.toString() + "&symbol=" + symbol + "&apikey=" + API_KEY);
         }
     }
@@ -137,10 +236,10 @@ public class ApiManager {
     }
 
     /**
-     * Converts the set time interval into a string variant accepted by the api
+     * Converts the current time interval into a string variant accepted by the api
      */
     public void convertTimeInterval() {
-        switch(interval) {
+        switch (interval) {
             case ONE_MIN:
                 stringInterval = "1min";
                 break;
@@ -159,9 +258,10 @@ public class ApiManager {
     }
 
     public static void main(String[] args) throws IOException {
-        ApiManager api = new ApiManager();
-        System.out.println(api.get("GME"));
-        System.out.println(api.get("TSLA"));
+        ApiManager api = new ApiManager(FunctionType.TIME_SERIES_INTRADAY, TimeInterval.FIVE_MIN);
+        for (Map<String, String> stock: api.get("GME")) {
+            System.out.println(stock.toString());
+        }
         ApiManager apiCustom = new ApiManager(FunctionType.TIME_SERIES_DAILY);
     }
 
