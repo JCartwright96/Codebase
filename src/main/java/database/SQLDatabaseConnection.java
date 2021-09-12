@@ -6,28 +6,35 @@
 package database;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class SQLDatabaseConnection {
 
-    private static final String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=db_codebase;integratedSecurity=true;";
+    private static final String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=codebase;" +
+            "integratedSecurity=true;";
 
     public static void queryDatabase(String query) {
         ResultSet resultSet = null;
+        ArrayList<String> results = new ArrayList<>();
         try(Connection connection = DriverManager.getConnection(connectionString); Statement statement = connection.createStatement()) {
             resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-                System.out.println(resultSet.getString(1) + " " +resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4));
+                for(int i = 1; i < resultSet.getMetaData().getColumnCount(); i++) {
+                    System.out.println(resultSet.getString(i));
+                }
             }
         }
         catch (SQLException e) {
             e.printStackTrace();
         }
-
     }
 
     public static void main(String[] args) {
-        SQLDatabaseConnection.queryDatabase("SELECT * FROM user_table");
+/*        SQLDatabaseConnection.queryDatabase("INSERT INTO c_user(id, username, password, email, firstname, lastname) " +
+                "values('08EC6C79-8DEC-4220-975C-6CE1EFDEA68A','test_username', 'password', 'test@gmail.com', 'test_firstname', " +
+                "'test_lastname')");*/
+        SQLDatabaseConnection.queryDatabase("SELECT * FROM c_user");
     }
 
 }

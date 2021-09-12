@@ -286,7 +286,9 @@ public class ApiManager {
     }
 
     public static void main(String[] args) throws IOException {
-        ApiManager api = new ApiManager(FunctionType.TIME_SERIES_INTRADAY);
+        ApiManager api = new ApiManager(FunctionType.GLOBAL_QUOTE);
+//        System.out.println(api.get("TSLA"));
         System.out.println(api.getStringDebug("GME"));
+//        System.out.println(api.get("GME"));
     }
 }
