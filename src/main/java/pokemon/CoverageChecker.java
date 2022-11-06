@@ -133,14 +133,11 @@ public class CoverageChecker {
         fighting.addStrengths(Arrays.asList(normal, ice, rock, dark, steel));
         dragon.addStrength(dragon);
 
-        allTypes.addAll(Arrays.asList(water, grass, ground, rock, bug, psychic, ghost, dark, fairy,
+        allTypes.addAll(Arrays.asList(fire, water, grass, ground, rock, bug, psychic, ghost, dark, fairy,
                 steel, poison, electric, flying, ice, fighting, dragon));
     }
 
     public static void main(String[] args) {
-        CoverageChecker cc = new CoverageChecker();
-        cc.addTypes(Arrays.asList("normal", "water", "rock", "flying", "fighting", "ghost", "ground", "steel", "grass", "fire"));
-//        cc.printCoverage();
         CoverageChecker swordTeam = new CoverageChecker();
         swordTeam.addTypes(Arrays.asList("fire", "water", "grass"));
         swordTeam.printCoverage();

@@ -5,6 +5,9 @@
  */
 package stock_tracker;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +15,7 @@ import java.util.Objects;
 /**
  * A class to track the information of a specific stock
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Stock {
 
     private String tickerSymbol;
@@ -23,41 +27,23 @@ public class Stock {
     private double changePercent;
 
     /**
-     * Default constructor
-     */
-    public Stock() {
-        this.tickerSymbol = "";
-        this.dayTraded = LocalDate.now();
-        this.price = 0;
-        this.low = 0;
-        this.high = 0;
-        this.changePercent = 0;
-    }
-
-    /**
-     * Constructor to create a stock using just the ticker symbol and default values
-     * @param tickerSymbol the ticker symbol of the stock
-     */
-    public Stock(String tickerSymbol) {
-        this.tickerSymbol = tickerSymbol;
-        this.dayTraded = LocalDate.now();
-        this.price = 0;
-        this.low = 0;
-        this.high = 0;
-        this.changePercent = 0;
-    }
-
-    /**
      * Custom constructor to set values for all fields
-     * @param tickerSymbol the ticker symbol of the stock
-     * @param price the price of the stock at closing the previous day
-     * @param open the opening price of the stock
-     * @param high the highest price of the stock during the trading day
-     * @param low the lowest price of the stock during the trading day
+     *
+     * @param tickerSymbol  the ticker symbol of the stock
+     * @param price         the price of the stock at closing the previous day
+     * @param open          the opening price of the stock
+     * @param high          the highest price of the stock during the trading day
+     * @param low           the lowest price of the stock during the trading day
      * @param changePercent the percentage difference between the closing price for the current and previous day
-     * @param dayTraded the date of the trading day
+     * @param dayTraded     the date of the trading day
      */
-    public Stock(String tickerSymbol, double price, double open, double high, double low, double changePercent, LocalDate dayTraded) {
+    public Stock(@JsonProperty("01. symbol") String tickerSymbol,
+                 @JsonProperty("05. price") double price,
+                 @JsonProperty("02. open") double open,
+                 @JsonProperty("03. high") double high,
+                 @JsonProperty("04. low") double low,
+                 @JsonProperty("09. change") double changePercent,
+                 @JsonProperty("07. latest trading day") LocalDate dayTraded) {
         this.tickerSymbol = tickerSymbol;
         this.dayTraded = dayTraded;
         this.price = (price >= 0) ? price : 0;
@@ -76,6 +62,7 @@ public class Stock {
 
     /**
      * Sets the ticker symbol for the stock
+     *
      * @param tickerSymbol the ticker symbol to set
      */
     public void setTickerSymbol(String tickerSymbol) {
@@ -91,6 +78,7 @@ public class Stock {
 
     /**
      * Set the closing price of the stock
+     *
      * @param price the price to set
      */
     public void setPrice(double price) {
@@ -99,6 +87,7 @@ public class Stock {
 
     /**
      * Rets
+     *
      * @return a date of the day traded for the stock
      */
     public LocalDate getDayTraded() {
@@ -107,6 +96,7 @@ public class Stock {
 
     /**
      * Sets the date for the day of trading
+     *
      * @param dayTraded the date to set
      */
     public void setDayTraded(LocalDate dayTraded) {
@@ -122,6 +112,7 @@ public class Stock {
 
     /**
      * Set the price of the stock at the opening of the trading day
+     *
      * @param open the price to set
      */
     public void setOpen(double open) {
@@ -137,6 +128,7 @@ public class Stock {
 
     /**
      * Set the highest traded price of the stock for a trading day
+     *
      * @param high the price to set
      */
     public void setHigh(double high) {
@@ -152,6 +144,7 @@ public class Stock {
 
     /**
      * Set the lowest price of the stock in the trading day
+     *
      * @param low the price to set
      */
     public void setLow(double low) {
@@ -159,7 +152,8 @@ public class Stock {
     }
 
     /**
-     * @return The percentage change between the current days closing and the previous days closing price. Will be positive if the price is higher for the current day or negative if the price is lower
+     * @return The percentage change between the current days closing and the previous days closing price.
+     * Will be positive if the price is higher for the current day or negative if the price is lower
      */
     public double getChangePercent() {
         return changePercent;

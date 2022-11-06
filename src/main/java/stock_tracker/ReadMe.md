@@ -3,7 +3,7 @@
 **API CALL Example:**
 https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=GME&interval=1min&apikey=OSKXT3K0OSQ9UVZO
 
-First Iteration of a small  stock tracker app using the AlphaVantage api (prices in $ as returned by the api)
+First Iteration of a small  globalQuoteStock tracker app using the AlphaVantage api (prices in $ as returned by the api)
 
 Example of returned values for each FUNCTION.TYPE
 
