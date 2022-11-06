@@ -37,8 +37,7 @@ public class ApiManager {
             if(interval.length > 0) {
                 setInterval(interval[0]);
             }
-            else
-            {
+            else {
                 setInterval(TimeInterval.FIVE_MIN);
             }
         }
@@ -116,7 +115,7 @@ public class ApiManager {
      * @return an a list of the stock information
      * @throws IOException if th reader fails
      */
-    public ArrayList<Map<String, String>> formatStockGlobalQuote(BufferedReader in) throws IOException {
+    private ArrayList<Map<String, String>> formatStockGlobalQuote(BufferedReader in) throws IOException {
         ArrayList<Map<String, String>> stockList = new ArrayList<>();
         Map<String, String> content = new HashMap<>();
         String inputLine;
@@ -151,7 +150,7 @@ public class ApiManager {
      * @return a list of Map<String, String> for each time period tracked for the stock
      * @throws IOException if the reader fails
      */
-    public ArrayList<Map<String, String>> formatStockMultipleDays(BufferedReader in) throws IOException {
+    private ArrayList<Map<String, String>> formatStockMultipleDays(BufferedReader in) throws IOException {
         ArrayList<Map<String, String>> listOfStock = new ArrayList<>();
         Map<String, String> content = new HashMap<>();
         String inputLine;
@@ -199,7 +198,7 @@ public class ApiManager {
      * @param inputLine the current line being read from the inputStream
      * @return the value required from the current line
      */
-    public String getValue(String inputLine) {
+    private String getValue(String inputLine) {
         return inputLine.substring(inputLine.indexOf(":") + 3, inputLine.length() - 2);
     }
 
@@ -207,7 +206,7 @@ public class ApiManager {
      * Validates all urlParameters that are required have acceptable values
      * @return true if all values are valid or false if not
      */
-    public boolean validateUrlParameters() {
+    private boolean validateUrlParameters() {
         if (function == null) {
             return false;
         }
@@ -224,7 +223,7 @@ public class ApiManager {
      * Builds the url for the api calls  based on the set ticker_symbol, function type and time interval if relevant
      * @throws MalformedURLException if the builtUrl is of the wrong style/form
      */
-    public void buildUrl() throws MalformedURLException {
+    private void buildUrl() throws MalformedURLException {
         if (interval != null) {
             url = new URL(BASE_URL + "function=" + function.toString() + "&symbol=" + symbol + "&interval=" + stringInterval + "&apikey=" + API_KEY);
         } else {
@@ -266,29 +265,18 @@ public class ApiManager {
     /**
      * Converts the current time interval into a string variant accepted by the api
      */
-    public void convertTimeInterval() {
+    private void convertTimeInterval() {
         switch (interval) {
-            case ONE_MIN:
-                stringInterval = "1min";
-                break;
-            case FIFTEEN_MIN:
-                stringInterval = "15min";
-                break;
-            case THIRTY_MIN:
-                stringInterval = "30min";
-                break;
-            case SIXTY_MIN:
-                stringInterval = "60min";
-                break;
-            default:
-                stringInterval = "5min";
+            case ONE_MIN -> stringInterval = "1min";
+            case FIFTEEN_MIN -> stringInterval = "15min";
+            case THIRTY_MIN -> stringInterval = "30min";
+            case SIXTY_MIN -> stringInterval = "60min";
+            default -> stringInterval = "5min";
         }
     }
 
     public static void main(String[] args) throws IOException {
         ApiManager api = new ApiManager(FunctionType.GLOBAL_QUOTE);
-//        System.out.println(api.get("TSLA"));
-        System.out.println(api.getStringDebug("GME"));
-//        System.out.println(api.get("GME"));
+        System.out.println(api.getStringDebug("AAPL"));
     }
 }

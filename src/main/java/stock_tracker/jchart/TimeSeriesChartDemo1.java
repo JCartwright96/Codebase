@@ -96,13 +96,13 @@ public class TimeSeriesChartDemo1 extends ApplicationFrame {
      * @return The dataset.
      */
     private static XYDataset createDataset() throws IOException {
-
         ApiManager stocks = new ApiManager(FunctionType.TIME_SERIES_DAILY);
-        ArrayList<Map<String, String>> results = stocks.get("GME");
-        TimeSeries s1 = new TimeSeries("GME daily trade price");
-        for(Map<String,String> s : results) {
+        ArrayList<Map<String, String>> results = stocks.get("TSLA");
+        TimeSeries s1 = new TimeSeries("TSLA daily trade price");
+        for(Map<String, String> s : results) {
             s1.add(createDay(s.get("dayTraded")), Double.parseDouble(s.get("price")));
         }
+
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(s1);
 
